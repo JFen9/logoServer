@@ -21,6 +21,7 @@ func main() {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 		// run as a goroutine
@@ -28,38 +29,49 @@ func main() {
 	}
 }
 
+func closeConnection(c net.Conn) {
+	if err := c.Close(); err != nil {
+		fmt.Println(err)
+	}
+}
+
 func handleClient(conn net.Conn) {
 	// close connection on exit
-	defer conn.Close()
+	defer closeConnection(conn)
 
-	conn.Write([]byte("hello\n"))
-
-	var buf [512]byte
-
-	n, err := conn.Read(buf[0:])
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+	// initiating handshake
+	if _, err := conn.Write([]byte("hello\n")); err != nil {
+		fmt.Println(err)
 	}
 
-	scanner := bufio.NewScanner(bytes.NewReader(buf[0:n]))
+	var buf = make([]byte, 512)
+
 	handler := service.NewHandler()
-	var reply strings.Builder
-	for scanner.Scan() {
-		cmd := strings.TrimSpace(scanner.Text())
-		fmt.Println(cmd)
-		if cmd == "quit" {
-			break
+	ended := false
+	for !ended {
+		n, err := conn.Read(buf[0:])
+		if err != nil {
+			fmt.Println(err.Error())
+			return
 		}
-		response := handler.Handle(cmd)
-		reply.WriteString(response)
-	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("reading standard input:", err)
-	}
-	_, err2 := conn.Write([]byte(reply.String()))
-	if err2 != nil {
-		return
+		fmt.Println(n, string(buf[0:]))
+		reader := bufio.NewScanner(bytes.NewReader(buf[0:n]))
+		for reader.Scan() {
+			cmd := strings.TrimSpace(reader.Text())
+
+			response := handler.Handle(cmd)
+			//fmt.Print(response)
+			if _, err2 := conn.Write([]byte(response)); err2 != nil {
+				fmt.Println("writing to connection error:", err2)
+				return
+			}
+			if cmd == "quit" {
+				ended = true
+			}
+		}
+		if err := reader.Err(); err != nil {
+			fmt.Println("reading standard input:", err)
+		}
 	}
 }
 

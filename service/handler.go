@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	topLeft = '\u2552'
+	topLeft = '\u2554'
 	horizontal = '\u2550'
 	topRight = '\u2557'
 	vertical = '\u2551'
 	bottomLeft = '\u255A'
-	bottomRight = '\u255B'
+	bottomRight = '\u255D'
 )
 
 type Handler struct {
@@ -19,15 +19,6 @@ type Handler struct {
 	direction	int
 	x 			int
 	y 			int
-}
-
-var ValidCommands = map[string]bool{
-	"hover": true,
-	"draw": true,
-	"eraser": true,
-	"coord": true,
-	"render": true,
-	"clear": true,
 }
 
 func (h Handler) Handle(cmd string) string {
@@ -43,7 +34,7 @@ func (h Handler) render() string {
 	b.WriteRune(topLeft)
 	b.WriteString( strings.Repeat(string(horizontal), 30))
 	b.WriteRune(topRight)
-	b.WriteRune('\n')
+	b.WriteString("\r\n")
 	for _, row := range h.canvas {
 		b.WriteRune(vertical)
 		for _, c := range row {
@@ -54,12 +45,12 @@ func (h Handler) render() string {
 			}
 		}
 		b.WriteRune(vertical)
-		b.WriteRune('\n')
+		b.WriteString("\r\n")
 	}
 	b.WriteRune(bottomLeft)
 	b.WriteString( strings.Repeat(string(horizontal), 30))
 	b.WriteRune(bottomRight)
-	b.WriteRune('\n')
+	b.WriteString("\r\n\r\n")
 	return b.String()
 }
 

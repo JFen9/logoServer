@@ -10,7 +10,6 @@ const verbose = false;
 describe('Front backend test', function () {
   it('should connect', done => {
     client.run(['coord'], (err, lines) => {
-      console.log(err);
       expect(err).toNotExist();
       expect(lines).toEqual(['(15,15)']);
 
@@ -20,7 +19,6 @@ describe('Front backend test', function () {
 
   it('should handle invalid commands', done => {
     client.run(['coord', 'invalid', 'coord'], (err, lines) => {
-      console.log(err);
       expect(err).toNotExist();
       expect(lines).toEqual(['(15,15)', '(15,15)']);
 
@@ -28,15 +26,15 @@ describe('Front backend test', function () {
     });
   });
 
-  // it('should render an empty service', done => {
-  //   client.run(['render'], (err, lines) => {
-  //     expect(err).toNotExist();
-  //     expectLines(lines, 'cb431d3c0003b8c12210614ac123d25a53045ae3');
-  //
-  //     done();
-  //   });
-  // });
-  //
+  it('should render an empty service', done => {
+    client.run(['render'], (err, lines) => {
+      expect(err).toNotExist();
+      expectLines(lines, 'cb431d3c0003b8c12210614ac123d25a53045ae3');
+
+      done();
+    });
+  });
+
   // it('should render a basic line', done => {
   //   client.run(['steps 5', 'render'], (err, lines) => {
   //     expect(err).toNotExist();
