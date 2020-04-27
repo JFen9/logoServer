@@ -60,14 +60,12 @@ func handleClient(conn net.Conn) {
 			cmd := strings.TrimSpace(reader.Text())
 
 			response := handler.Handle(cmd)
-			//fmt.Print(response)
+			fmt.Print(response)
 			if _, err2 := conn.Write([]byte(response)); err2 != nil {
 				fmt.Println("writing to connection error:", err2)
 				return
 			}
-			if cmd == "quit" {
-				ended = true
-			}
+			if cmd == "quit" { ended = true }
 		}
 		if err := reader.Err(); err != nil {
 			fmt.Println("reading standard input:", err)
