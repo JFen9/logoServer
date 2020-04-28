@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	service := ":8124"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
+	port := ":8124"
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", port)
 	checkError(err)
 
 	listener, err := net.ListenTCP("tcp", tcpAddr)
@@ -44,28 +44,28 @@ func handleClient(conn net.Conn) {
 		fmt.Println(err)
 	}
 
+	// buffer for receiving incoming data from socket
 	var buf = make([]byte, 512)
 
+	// initializing a handler to work with the current connection
 	handler := service.NewHandler()
-	ended := false
-	for !ended {
+	for moreData := true; moreData; {
 		n, err := conn.Read(buf[0:])
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		fmt.Println(n, string(buf[0:]))
+
 		reader := bufio.NewScanner(bytes.NewReader(buf[0:n]))
 		for reader.Scan() {
 			cmd := strings.TrimSpace(reader.Text())
-
 			response := handler.Handle(cmd)
-			fmt.Print(response)
+
 			if _, err2 := conn.Write([]byte(response)); err2 != nil {
 				fmt.Println("writing to connection error:", err2)
 				return
 			}
-			if cmd == "quit" { ended = true }
+			if cmd == "quit" { moreData = false }
 		}
 		if err := reader.Err(); err != nil {
 			fmt.Println("reading standard input:", err)
