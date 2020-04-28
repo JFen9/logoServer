@@ -40,13 +40,16 @@ func NewHandler() *Handler {
 
 func (h *Handler) Handle(cmd string) string {
 	if strings.HasPrefix(cmd, "steps") {
-		return h.steps(getN(cmd, "steps"))
+		h.steps(getN(cmd, "steps"))
+		return ""
 	}
 	if strings.HasPrefix(cmd, "right") {
-		return h.right(getN(cmd, "right"))
+		h.right(getN(cmd, "right"))
+		return ""
 	}
 	if strings.HasPrefix(cmd, "left") {
-		return h.left(getN(cmd, "left"))
+		h.left(getN(cmd, "left"))
+		return ""
 	}
 	switch cmd {
 	case "hover": h.mode = "hover"
@@ -69,17 +72,15 @@ func getN(s string, prefix string) int {
 	}
 }
 
-func (h *Handler) right(n int) string {
+func (h *Handler) right(n int) {
 	h.direction = (h.direction + n) % 8
-	return ""
 }
 
-func (h *Handler) left(n int) string {
+func (h *Handler) left(n int) {
 	h.direction = (h.direction + 8 - n % 8) % 8
-	return ""
 }
 
-func (h *Handler) steps(n int) string {
+func (h *Handler) steps(n int) {
 	for i := 0; i < n; i++ {
 		if h.mode == "draw" { h.canvas[h.y][h.x] = true }
 		if h.mode == "eraser" { h.canvas[h.y][h.x] = false }
@@ -94,7 +95,6 @@ func (h *Handler) steps(n int) string {
 		case 7: if h.x > 0 && h.y > 0 { h.x--; h.y-- }
 		}
 	}
-	return ""
 }
 
 func (h *Handler) render() string {
